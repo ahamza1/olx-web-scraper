@@ -1,1 +1,1 @@
-# python-olx-scraper
+# olx-web-scraper
