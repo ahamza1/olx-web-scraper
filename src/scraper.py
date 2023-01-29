@@ -3,13 +3,10 @@ from bs4 import BeautifulSoup
 
 
 class ArticleScraper:
-    base_url = "https://www.olx.ba"
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36"
-    }
-
-    def __init__(self) -> None:
+    def __init__(self, base_url, headers) -> None:
         super().__init__()
+        self.base_url = base_url
+        self.headers = headers
 
     def get_articles(self, query_path):
         results = []
@@ -25,12 +22,18 @@ class ArticleScraper:
 
             for a in articles:
                 article_id = a.get_attribute_list('id')[0]
+
+                if article_id is None:
+                    continue
+
+                article_link = a.find_all('a')[0]
+                article_url = article_link.get_attribute_list('href')[0]
                 article_title = a.find('p', attrs={"class": "na"})
 
                 if article_id:
                     results.append({
                         "id": article_id[4:],
-                        "url": f"https://www.olx.ba/artikal/{article_id[4:]}",
+                        "url": article_url,
                         "title": article_title.contents[0]
                     })
 

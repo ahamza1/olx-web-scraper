@@ -1,28 +1,49 @@
 from scraper import ArticleScraper
+from src import config
 from src.db import Session, init_db
-
-from src.models import Article
-
-path = "/pretraga?vrsta=samoprodaja&sort_order=desc&kategorija=23&kanton=9&grad%5B0%5D=3969&grad%5B1%5D=5896&do=200000&sacijenom=sacijenom&samosaslikom=samosaslikom&kvadrata_min=55&kvadrata_max=1000&stranica=1"
-
-scraper = ArticleScraper()
-results = scraper.get_articles(path)
-
-init_db()
-
-session = Session()
-existing = session.query(Article).filter_by(viewed=False).all()
-session.close()
+from src.models import Article, ArticleSearch
 
 
-session = Session()
+def load_articles(article_search):
+    scraper = ArticleScraper(config.BASE_URL, config.HEADERS)
+    results = scraper.get_articles(article_search.url)
 
-ex = [e.article_id for e in existing]
+    s = Session()
 
-for r in results:
-    if r["id"] not in ex:
-        a = Article(article_id=r["id"], url=r["url"], title=r["title"], viewed=False)
-        session.add(a)
+    existing = s.query(Article)\
+        .filter_by(article_search_id=article_search.id, viewed=False).all()
 
-session.commit()
-session.close()
+    s.close()
+
+    existing_ids = [e.article_id for e in existing]
+
+    s = Session()
+    for r in results:
+        if r["id"] not in existing_ids:
+            a = Article(
+                article_id=r["id"],
+                url=r["url"],
+                title=r["title"],
+                article_search_id=article_search.id,
+                viewed=False
+            )
+
+            s.add(a)
+
+    s.commit()
+    s.close()
+
+
+def main():
+    init_db()
+
+    session = Session()
+    searches = session.query(ArticleSearch).all()
+    session.close()
+
+    for search in searches:
+        load_articles(search)
+
+
+if __name__ == "__main__":
+    main()

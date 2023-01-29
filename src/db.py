@@ -1,12 +1,10 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from resources.config import config_dict
+from src import config
 from src.models import base
 
-config = config_dict["dev"]
 db = create_engine(config.SQL_ALCHEMY_URL)
-
 Session = sessionmaker(bind=db)
 
 
