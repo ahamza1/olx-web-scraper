@@ -1,11 +1,10 @@
 import uuid
 
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, String, Boolean, ForeignKey
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
-base = declarative_base()
+from src.database import base
 
 
 class ArticleSearch(base):
@@ -28,6 +27,7 @@ class Article(base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     article_id = Column(String)
     url = Column(String)
+    image = Column(String)
     title = Column(String)
     viewed = Column(Boolean)
     article_search_id = Column(UUID(as_uuid=True), ForeignKey('ArticleSearch.id'))

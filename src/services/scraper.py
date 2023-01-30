@@ -1,4 +1,5 @@
 from urllib import request
+
 from bs4 import BeautifulSoup
 
 
@@ -26,15 +27,20 @@ class ArticleScraper:
                 if article_id is None:
                     continue
 
-                article_link = a.find_all('a')[0]
-                article_url = article_link.get_attribute_list('href')[0]
+                article_url = a.find_all('a')[0]
+                article_image = a.find_all('div', attrs={"class": "slika"})[0]
                 article_title = a.find('p', attrs={"class": "na"})
+
+                url = article_url.get_attribute_list('href')[0]
+                image = article_image.contents[0].get_attribute_list('src')[0]
+                title = article_title.contents[0]
 
                 if article_id:
                     results.append({
                         "id": article_id[4:],
-                        "url": article_url,
-                        "title": article_title.contents[0]
+                        "url": url,
+                        "img": image,
+                        "title": title
                     })
 
             next_page = html_content.find('a', attrs={"rel": "next"})

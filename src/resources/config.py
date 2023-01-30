@@ -1,5 +1,4 @@
 class Config:
-    STATIC_FOLDER = 'static'
     TEMPLATES_FOLDER = 'templates'
     BASE_URL = "https://www.olx.ba"
     HEADERS = {
@@ -8,20 +7,18 @@ class Config:
 
 
 class DevConfig(Config):
-    FLASK_ENV = 'dev'
     DEBUG = True
     TESTING = True
-    SQL_ALCHEMY_URL = "postgresql://changeme:changeme@localhost:49153/postgres"
+    SQL_ALCHEMY_URL = "postgresql://postgres:postgrespw@localhost:49153/postgres"
 
 
 class ProdConfig(Config):
-    FLASK_ENV = 'prod'
     DEBUG = False
     TESTING = False
-    SQL_ALCHEMY_URL = "postgresql://changeme:changeme@localhost:49153/postgres"
+    SQL_ALCHEMY_URL = "postgresql://postgres:postgrespw@localhost:49153/postgres"
 
 
 config_dict = {
+    'dev': DevConfig,
     'prod': ProdConfig,
-    'dev': DevConfig
 }

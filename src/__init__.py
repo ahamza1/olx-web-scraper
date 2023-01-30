@@ -1,3 +1,5 @@
-from resources.config import config_dict
+import os
 
-config = config_dict["dev"]
+from src.resources.config import config_dict
+
+config = config_dict[os.getenv("ENVIRONMENT_KEY")]
