@@ -29,6 +29,7 @@ class Article(base):
     url = Column(String)
     image = Column(String)
     title = Column(String)
+    price = Column(String)
     viewed = Column(Boolean)
     article_search_id = Column(UUID(as_uuid=True), ForeignKey('ArticleSearch.id'))
 

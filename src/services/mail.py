@@ -1,4 +1,5 @@
 import base64
+import datetime
 import os.path
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -19,8 +20,11 @@ class MailSender:
         environment = Environment(loader=FileSystemLoader("templates/"))
         template = environment.get_template("mail.html")
 
-        # Render HTML Template String
-        html_template_string = template.render(article_count=len(articles), articles=articles)
+        html_template_string = template.render(
+            article_count=len(articles),
+            articles=articles,
+            version_date=datetime.datetime.utcnow()
+        )
 
         self.send_notification(recipient, html_template_string)
 
@@ -37,7 +41,6 @@ class MailSender:
             message['Subject'] = 'New Articles Digest'
             message.attach(MIMEText(body, 'html'))
 
-            # encoded message
             encoded_message = base64.urlsafe_b64encode(message.as_bytes()) \
                 .decode()
 
@@ -58,19 +61,16 @@ class MailSender:
             send_message = None
         return send_message
 
-    def google_authenticate(self):
+    @staticmethod
+    def google_authenticate():
         # If modifying these scopes, delete the file token.json.
         scopes = ['https://mail.google.com/']
 
         creds = None
 
-        # The file token.json stores the user's access and refresh tokens, and is
-        # created automatically when the authorization flow completes for the first
-        # time.
         if os.path.exists('token.json'):
             creds = Credentials.from_authorized_user_file('token.json', scopes)
 
-        # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
@@ -78,7 +78,6 @@ class MailSender:
                 flow = InstalledAppFlow.from_client_secrets_file('credentials.json', scopes)
                 creds = flow.run_local_server(port=61642)
 
-            # Save the credentials for the next run
             with open('token.json', 'w') as token:
                 token.write(creds.to_json())
 

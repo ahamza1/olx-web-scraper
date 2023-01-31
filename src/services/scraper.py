@@ -29,10 +29,12 @@ class ArticleScraper:
 
                 article_url = a.find_all('a')[0]
                 article_image = a.find_all('div', attrs={"class": "slika"})[0]
+                article_price = a.find_all('div', attrs={"class": "datum"})[0]
                 article_title = a.find('p', attrs={"class": "na"})
 
                 url = article_url.get_attribute_list('href')[0]
                 image = article_image.contents[0].get_attribute_list('src')[0]
+                price = article_price.contents[1].contents[0]
                 title = article_title.contents[0]
 
                 if article_id:
@@ -40,6 +42,7 @@ class ArticleScraper:
                         "id": article_id[4:],
                         "url": url,
                         "img": image,
+                        "price": price,
                         "title": title
                     })
 
