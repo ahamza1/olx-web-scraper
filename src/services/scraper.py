@@ -17,23 +17,23 @@ class ArticleScraper:
             page_request = request.Request(url, headers=self.headers)
             page = request.urlopen(page_request)
 
-            html_content = BeautifulSoup(page, 'html.parser')
+            html_content = BeautifulSoup(page, "html.parser")
 
-            articles = html_content.find_all('div', attrs={"class": "artikal"})
+            articles = html_content.find_all("div", attrs={"class": "artikal"})
 
             for a in articles:
-                article_id = a.get_attribute_list('id')[0]
+                article_id = a.get_attribute_list("id")[0]
 
                 if article_id is None:
                     continue
 
-                article_url = a.find_all('a')[0]
-                article_image = a.find_all('div', attrs={"class": "slika"})[0]
-                article_price = a.find_all('div', attrs={"class": "datum"})[0]
-                article_title = a.find('p', attrs={"class": "na"})
+                article_url = a.find_all("a")[0]
+                article_image = a.find_all("div", attrs={"class": "slika"})[0]
+                article_price = a.find_all("div", attrs={"class": "datum"})[0]
+                article_title = a.find("p", attrs={"class": "na"})
 
-                url = article_url.get_attribute_list('href')[0]
-                image = article_image.contents[0].get_attribute_list('src')[0]
+                url = article_url.get_attribute_list("href")[0]
+                image = article_image.contents[0].get_attribute_list("src")[0]
                 price = article_price.contents[1].contents[0]
                 title = article_title.contents[0]
 
@@ -46,11 +46,11 @@ class ArticleScraper:
                         "title": title
                     })
 
-            next_page = html_content.find('a', attrs={"rel": "next"})
+            next_page = html_content.find("a", attrs={"rel": "next"})
 
             if not next_page:
                 break
 
-            query_path = next_page.get_attribute_list('href')[0]
+            query_path = next_page.get_attribute_list("href")[0]
 
         return results

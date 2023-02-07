@@ -13,6 +13,8 @@ from src.services.scraper import ArticleScraper
 
 
 def load_articles(article_search):
+    print(f"Loading articles for search: id={ article_search.id }, name={ article_search.title }")
+
     scraper = ArticleScraper(config.BASE_URL, config.HEADERS)
     results = scraper.get_articles(article_search.url)
 
@@ -59,14 +61,21 @@ def load_articles(article_search):
         a.viewed = True
 
     ms = MailSender()
-    ms.send_articles_notification(article_search.email, articles=articles)
+    message = ms.send_articles_notification(article_search.email, articles=articles)
+
+    if message is not None:
+        print(f"Notification sent for search: "
+              f"id={ article_search.id }, name={ article_search.title }, message_id: { message['id'] }")
+    else:
+        print(f"No new articles for search: "
+              f"id={ article_search.id }, name={ article_search.title }")
 
     s.commit()
     s.close()
 
 
 def start_search():
-    print(time.ctime())
+    print(f"Search articles started at: time={ time.ctime() }")
 
     session = Session()
     searches = session.query(ArticleSearch).all()
