@@ -57,16 +57,16 @@ class ArticlesService:
         for a in articles:
             a.viewed = True
 
-        s.close()
-
         if len(articles) == 0:
             print(f"No new articles for search: "
                   f"id={article_search.id}, name={article_search.title}")
-            return
+        else:
+            ms = MailSenderService()
+            message = ms.send_articles_notification(article_search.email, articles=articles)
 
-        ms = MailSenderService()
-        message = ms.send_articles_notification(article_search.email, articles=articles)
+            if message is not None:
+                print(f"Notification sent for search: "
+                      f"id={article_search.id}, name={article_search.title}, message_id: {message['id']}")
 
-        if message is not None:
-            print(f"Notification sent for search: "
-                  f"id={article_search.id}, name={article_search.title}, message_id: {message['id']}")
+        s.commit()
+        s.close()
