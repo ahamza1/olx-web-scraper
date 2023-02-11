@@ -14,7 +14,7 @@ from jinja2 import Environment, FileSystemLoader
 from src import config
 
 
-class MailSender:
+class MailSenderService:
     def __init__(self) -> None:
         self.scopes = config.MAIL_SCOPES
         self.token_file = config.MAIL_TOKEN_FILE

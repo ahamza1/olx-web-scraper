@@ -3,7 +3,7 @@ from urllib import request
 from bs4 import BeautifulSoup
 
 
-class ArticleScraper:
+class ArticleScraperService:
     def __init__(self, base_url, headers) -> None:
         super().__init__()
         self.base_url = base_url
