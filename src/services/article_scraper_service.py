@@ -1,6 +1,8 @@
 from urllib import request
 
 from bs4 import BeautifulSoup
+from selenium import webdriver
+import re
 
 
 class ArticleScraperService:
@@ -12,45 +14,52 @@ class ArticleScraperService:
     def get_articles(self, query_path):
         results = []
 
-        while True:
-            url = self.base_url + query_path
-            page_request = request.Request(url, headers=self.headers)
-            page = request.urlopen(page_request)
+        url = self.base_url + query_path
 
-            html_content = BeautifulSoup(page, "html.parser")
+        driver = webdriver.Chrome()
+        driver.get(url)
+        page = driver.execute_script('return document.body.innerHTML')
+        html_content = BeautifulSoup(''.join(page), 'html.parser')
 
-            articles = html_content.find_all("div", attrs={"class": "artikal"})
+        pagination = html_content.find("div", class_="olx-pagination-wrapper")
+        page_count = len(pagination.find("ul").contents)
+
+        if page_count == 0:
+            return
+
+        for i in range(1, page_count):
+            url = self.base_url + query_path + f"&page={i}"
+
+            driver = webdriver.Chrome()
+            driver.get(url)
+            page = driver.execute_script('return document.body.innerHTML')
+            html_content = BeautifulSoup(''.join(page), 'html.parser')
+
+            articles = html_content.find("div", class_="articles")
 
             for a in articles:
-                article_id = a.get_attribute_list("id")[0]
+                article_link = a.find("a")
 
-                if article_id is None:
+                if article_link is None or article_link == -1:
                     continue
 
-                article_url = a.find_all("a")[0]
-                article_image = a.find_all("div", attrs={"class": "slika"})[0]
-                article_price = a.find_all("div", attrs={"class": "datum"})[0]
-                article_title = a.find("p", attrs={"class": "na"})
+                article_url = article_link.get_attribute_list("href")[0]
+                article_image = a.find_all("img", class_="listing-image-main")[0]
+                article_price = a.find_all("span", class_="smaller")[0]
+                article_title = a.find_all("h1", class_="main-heading")[0]
 
-                url = article_url.get_attribute_list("href")[0]
-                image = article_image.contents[0].get_attribute_list("src")[0]
-                price = article_price.contents[1].contents[0]
-                title = article_title.contents[0]
+                id = article_url.split("/")[2]
+                url = self.base_url + article_url
+                image = article_image.get_attribute_list("src")[0]
+                price = re.sub('\s+', ' ', article_price.contents[0]).strip()
+                title = re.sub('\s+', ' ', article_title.contents[0]).strip()
 
-                if article_id:
-                    results.append({
-                        "id": article_id[4:],
-                        "url": url,
-                        "img": image,
-                        "price": price,
-                        "title": title
-                    })
-
-            next_page = html_content.find("a", attrs={"rel": "next"})
-
-            if not next_page:
-                break
-
-            query_path = next_page.get_attribute_list("href")[0]
+                results.append({
+                    "id": id,
+                    "url": url,
+                    "img": image,
+                    "price": price,
+                    "title": title
+                })
 
         return results

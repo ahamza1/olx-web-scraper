@@ -12,6 +12,9 @@ class ArticlesService:
 
     @staticmethod
     def save_new_articles(article_search, results):
+        if len(results) == 0:
+            return
+
         result_ids = [(r["id"],) for r in results]
         new_articles = Values(column("article_id"), name="new_articles").data(
             result_ids
